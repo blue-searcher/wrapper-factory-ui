@@ -7,8 +7,9 @@ import InputGroup from "react-bootstrap/InputGroup"
 import { useToken } from 'wagmi'
 import { AddressZero } from "@ethersproject/constants"
 import { toast } from 'react-toastify'
+import Spinner from "react-bootstrap/Spinner"
 
-type FixedWrapperDeployParams = {
+export type FixedWrapperDeployParams = {
   tokenAddress: string,
   name: string,
   symbol: string,
@@ -19,13 +20,15 @@ type FixedWrapperDeployParams = {
 }
 
 interface Props {
-  onSubmit: (data: FixedWrapperDeployParams) => void,
+  onSubmit: (data: FixedWrapperDeployParams) => Promise<void>,
 }
 
-//0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e
+//0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e - YFI mainnet
+//0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6 - weth goerli
 function InnerForm() {
-  const { values, setFieldValue, isValid } = useFormikContext<FixedWrapperDeployParams>();
+  const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<FixedWrapperDeployParams>();
 
+  //TODO Do not fetch if tokenAddress is less than 42 chars 
   const tokenResult = useToken({ 
     address: values.tokenAddress,
     onError(error: any) {
@@ -33,6 +36,8 @@ function InnerForm() {
     },
   })
   const token = tokenResult?.data
+
+  console.log(isSubmitting)
 
   useEffect(() => {
     if (token) {
@@ -122,9 +127,15 @@ function InnerForm() {
       <Button 
         variant="primary"
         type="submit"
-        className="w-100 py-3"
-        disabled={!isValid}
+        className="w-100 py-3 text-uppercase font-weight-bold"
+        disabled={!isValid || isSubmitting}
       >
+        {isSubmitting && (
+          <>
+            <Spinner animation="border" size="sm" />
+            {"  "}
+          </>
+        )}
         {"🚀  "}
         Deploy
       </Button>
@@ -170,8 +181,9 @@ export default function FactoryFixedWrapperForm({
         initialValues={initialValues}
         validationSchema={validation}
         validateOnMount
-        onSubmit={values => {
-          onSubmit(values);
+        onSubmit={ async (values, { setSubmitting }) => {
+          await onSubmit(values)
+          setSubmitting(false)
         }}
       >
         <InnerForm/>

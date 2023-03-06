@@ -9,7 +9,7 @@ export default function Topbar() {
   const { isConnected } = useAccount()
 
   return (
-    <Navbar expand="md">
+    <Navbar expand="md" style={{ marginBottom: 50 }}>
       <Container>
         <Navbar.Brand href="#">
           <div className="font-weight-bold">Wrapper Factory</div>

@@ -1,4 +1,5 @@
 import Topbar from './Topbar'
+import Footer from './Footer'
 import { ToastContainer } from 'react-toastify'
 
 interface Props {
@@ -23,15 +24,6 @@ export default function ContentWrapper({
 
   return (
     <div style={{backgroundColor: "#f2f4f6"}}>
-      <style global jsx>{`
-        html,
-        body,
-        body > div:first-child,
-        div#__next,
-        div#__next > div {
-          height: 100%;
-        }
-      `}</style>
       <Topbar />
       
       <div className="container text-center" style={style.heading}>
@@ -42,6 +34,8 @@ export default function ContentWrapper({
       <div className="container" style={style.content}>
         {children}
       </div>
+
+      <Footer />
 
       <ToastContainer
         position="bottom-center"
