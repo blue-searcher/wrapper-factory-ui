@@ -1,4 +1,4 @@
-import { types } from "../wrapperTypes.tsx";
+import { WRAPPER_TYPES } from "../constants"
 
 interface Props {
   wrapperId: Number,
@@ -7,7 +7,7 @@ interface Props {
 export default function WrapperDescription({
   wrapperId
 }: Props) {
-  const wrapper = types.find(el => el.id === wrapperId);
+  const wrapper = WRAPPER_TYPES.find(el => el.id === wrapperId);
 
   return (
     <div className="text-justify mt-2 text-muted px-4 py-3 ">

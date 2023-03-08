@@ -25,19 +25,18 @@ interface Props {
 
 //0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e - YFI mainnet
 //0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6 - weth goerli
+//0x582072589dA9Dc9de7cb14aB98bd550A531909c4 - test token goerli
 function InnerForm() {
   const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<FixedWrapperDeployParams>();
 
   //TODO Do not fetch if tokenAddress is less than 42 chars 
   const tokenResult = useToken({ 
-    address: values.tokenAddress,
+    address: values.tokenAddress as `0x${string}`,
     onError(error: any) {
       toast.error("Error fetching token information")
     },
   })
   const token = tokenResult?.data
-
-  console.log(isSubmitting)
 
   useEffect(() => {
     if (token) {

@@ -17,7 +17,7 @@ export default function Factory() {
 
   const onSubmit = async (data: FixedWrapperDeployParams): Promise<void> => {
     return prepareWriteContract({
-      address: FACTORY_ADDRESS,
+      address: FACTORY_ADDRESS as `0x${string}`,
       abi: WRAPPER_FACTORY_ABI,
       functionName: 'deployFixedRatio',
       args: [
@@ -48,7 +48,7 @@ export default function Factory() {
       title="Factory"
       description="Create a new wrapper token."
     > 
-      <CenteredContent>
+      <CenteredContent size="sm">
         <Card className="p-0 m-0">
           <div className="w-100" >
             <WrapperTypeSelector onChange={(id: Number) => setWrapperId(id)} />

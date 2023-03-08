@@ -1,14 +1,16 @@
 import ContentWrapper from "../../components/layout/ContentWrapper"
 import CenteredContent from "../../components/layout/CenteredContent"
+import WrappersList from "../../components/WrappersList"
+
 
 export default function Wrappers() {
   return (
     <ContentWrapper
-      title="Factory"
-      description="Create a new wrapper token."
+      title="Wrappers"
+      description="List of all wrapper tokens created by Factory."
     > 
-      <CenteredContent>
-    	TODO Wrappers
+      <CenteredContent size="md">
+    	  <WrappersList />
       </CenteredContent>
     </ContentWrapper>
   )

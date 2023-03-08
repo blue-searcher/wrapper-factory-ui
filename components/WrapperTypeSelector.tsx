@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { types } from "../wrapperTypes.tsx";
+import { WRAPPER_TYPES } from "../constants"
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
@@ -17,7 +17,7 @@ export default function WrapperTypeSelector({
       className="w-100 border-bottom border-1 border-dark"
       style={{ borderRadius: 0 }}
     >
-      {types.map((type) => (
+      {WRAPPER_TYPES.map((type) => (
         <ToggleButton
           key={type.id}
           id={`wrapper-type-radio-${type.id}`}
