@@ -15,7 +15,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <WagmiConfig client={client}>
-      <ConnectKitProvider>
+      <ConnectKitProvider 
+        customTheme={{
+          "--ck-connectbutton-color": "var(--bs-primary)"
+        }}
+      >
         <NextHead>
           <title>Wrapper Factory</title>
         </NextHead>

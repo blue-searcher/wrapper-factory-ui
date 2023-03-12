@@ -13,7 +13,7 @@ import { BigNumber } from "ethers"
 import { toast } from 'react-toastify'
 
 export default function Factory() {
-  const [wrapperId, setWrapperId] = useState<Number>(0)
+  const [wrapperId, setWrapperId] = useState<number>(0)
 
   const onSubmit = async (data: FixedWrapperDeployParams): Promise<void> => {
     return prepareWriteContract({

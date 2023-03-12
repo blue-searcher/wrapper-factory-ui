@@ -4,10 +4,11 @@ import * as Yup from 'yup'
 import Input from "./Input"
 import Button from "react-bootstrap/Button"
 import InputGroup from "react-bootstrap/InputGroup"
-import { useToken } from 'wagmi'
+import { useToken, useAccount } from 'wagmi'
 import { AddressZero } from "@ethersproject/constants"
 import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
+import ConnectWallet from "../ConnectWallet"
 
 export type FixedWrapperDeployParams = {
   tokenAddress: string,
@@ -27,6 +28,8 @@ interface Props {
 //0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6 - weth goerli
 //0x582072589dA9Dc9de7cb14aB98bd550A531909c4 - test token goerli
 function InnerForm() {
+  const { isConnecting, isConnected, isReconnecting } = useAccount()
+
   const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<FixedWrapperDeployParams>();
 
   //TODO Do not fetch if tokenAddress is less than 42 chars 
@@ -35,6 +38,7 @@ function InnerForm() {
     onError(error: any) {
       toast.error("Error fetching token information")
     },
+    enabled: Boolean(values.tokenAddress?.length === 42)
   })
   const token = tokenResult?.data
 
@@ -123,21 +127,32 @@ function InnerForm() {
     </div>
 
     <div className="mt-4">
-      <Button 
-        variant="primary"
-        type="submit"
-        className="w-100 py-3 text-uppercase font-weight-bold"
-        disabled={!isValid || isSubmitting}
-      >
-        {isSubmitting && (
+      {(isConnecting || !isConnected || isReconnecting) ? (
+        <div className="d-flex">
           <>
-            <Spinner animation="border" size="sm" />
-            {"  "}
+            <ConnectWallet 
+              variant="primary"
+              className="w-100 py-3 font-weight-bold" 
+            />  
           </>
-        )}
-        {"🚀  "}
-        Deploy
-      </Button>
+        </div>
+      ) : (
+        <Button 
+          variant="primary"
+          type="submit"
+          className="w-100 py-3 text-uppercase font-weight-bold"
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting && (
+            <>
+              <Spinner animation="border" size="sm" />
+              {"  "}
+            </>
+          )}
+          {"🚀  "}
+          Deploy
+        </Button>
+      )}
     </div>
 
    </Form>
@@ -167,7 +182,7 @@ export default function FactoryFixedWrapperForm({
     decimals: Yup.number().integer()
       .required("Decimals are required")
       .min(0, "Lower value allowed is 0")
-      .min(18, "Greatest value allowed is 18"),
+      .max(18, "Greatest value allowed is 18"),
     tokenAmount: Yup.number()
       .test('positive', 'Must be positive number', (val: number) => val > 0),
     wrapperAmount: Yup.number()

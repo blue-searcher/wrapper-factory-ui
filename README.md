@@ -1,3 +1,3 @@
-# example
+# wrapper-factory-ui
 
-This is an example app built with [Next.js](https://nextjs.org/) that showcases some basic web3-react usage patterns.
+work in progress

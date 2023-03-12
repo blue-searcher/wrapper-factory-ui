@@ -22,10 +22,11 @@ export default function WrappersList() {
   })
 
   const totalWrappers: number = nextIdRead && nextIdRead.data ? (Math.max(nextIdRead.data.toNumber() - 1, 0)) : 0;
+  const wrapperIds = Array.from(Array(totalWrappers + 1).keys()).sort((a: number, b: number) => b - a)
 
   return (
     <div className="row">
-      {Array.from(Array(totalWrappers + 1).keys()).map((wrapperId: number) => (
+      {wrapperIds.map((wrapperId: number) => (
         <div 
           className="col-12"
           key={"wrapper-card-" + wrapperId} 
