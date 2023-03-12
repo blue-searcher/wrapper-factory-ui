@@ -1,5 +1,6 @@
 
 export const FACTORY_ADDRESS: string = "0x19C719029B34Ee15d5a12C8c95d09Ba35De62547"
+export const EXPLORER_TX_BASE_LINK: string = "https://goerli.etherscan.io/tx/"
 
 type WrapperInfo = { 
   id: number,
