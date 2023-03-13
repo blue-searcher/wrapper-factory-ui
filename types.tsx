@@ -36,3 +36,11 @@ export type AmountsOut = {
   wrap: BigNumber,
   unwrap: BigNumber,
 }
+
+export type WrapOperationType = "wrap" | "unwrap"
+
+export type WrapUnwrapFormParams = {
+  amount: BigNumber,
+  receiver: `0x${string}`,
+  functionName: WrapOperationType,
+}

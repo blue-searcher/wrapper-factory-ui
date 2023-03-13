@@ -6,27 +6,32 @@ import { toast } from 'react-toastify'
 
 export function useAmountsOut(
   address: `0x${string}`,
-  tokenAmountIn: BigNumber,
-  wrapperAmountIn: BigNumber,
+  tokenAmountIn: BigNumber | undefined,
+  wrapperAmountIn: BigNumber | undefined,
 ): AmountsOut {
   const [amountsOut, setAmountsOut] = useState<AmountsOut>()
 
+  let contractCalls = []
+  if (tokenAmountIn) {
+    contractCalls.push({
+      address: address,
+      abi: FIXED_RATIO_ABI,
+      functionName: 'getWrapAmountOut',
+      args: [tokenAmountIn]
+    })
+  }
+  if (wrapperAmountIn) {
+    contractCalls.push({
+      address: address,
+      abi: FIXED_RATIO_ABI,
+      functionName: 'getUnwrapAmountOut',
+      args: [wrapperAmountIn]
+    })
+  }
+
   const amountsOutRead: ReadOutput<Array<any>> = useContractReads({
-    contracts: [
-      {
-        address: address,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'getWrapAmountOut',
-        args: [tokenAmountIn]
-      },
-      {
-        address: address,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'getUnwrapAmountOut',
-        args: [wrapperAmountIn]
-      },
-    ],
-    enabled: Boolean(address),
+    contracts: contractCalls,
+    enabled: Boolean(address && contractCalls.length > 0),
     onError(error: any) {
       toast.error("Error fetching amounts out")
     },

@@ -10,28 +10,27 @@ import Spinner from "react-bootstrap/Spinner"
 import { BigNumber } from "ethers"
 import FIXED_RATIO_ABI from "../../abi/FixedRatio.json"
 import { UNIT } from "../../constants"
-import { useContractRead, usePrepareContractWrite, useContractWrite } from 'wagmi'
+import { useContractRead, usePrepareContractWrite, useContractWrite, useAccount } from 'wagmi'
 import { useAmountsOut, useRatio } from "../../hooks"
+import { WrapUnwrapFormParams, AccountResult, WrapOperationType } from "../../utils"
 
 interface Props {
   info: WrapperInfo,
-}
-
-type WrapFormParams = {
-  amount: number,
+  onSubmit: (data: WrapUnwrapFormParams) => Promise<void>,
+  functionName: WrapOperationType
 }
 
 interface ReportProps {
+  functionName: WrapOperationType,
   info: WrapperInfo,
   amountIn: BigNumber,
 }
 
-function Report({
+function WrapReport({
   info, 
   amountIn
 }: ReportProps) {
-  const amountsOut: AmountsOut = useAmountsOut(info?.wrapper?.address, amountIn, amountIn)
-  const ratio: number = useRatio(info?.wrapper?.address)
+  const amountsOut: AmountsOut = useAmountsOut(info?.wrapper?.address, amountIn, undefined)
 
   return (
     <div className="my-2">
@@ -46,24 +45,62 @@ function Report({
       <div className="d-flex justify-content-between my-2">
         <span className="text-muted">Ratio</span>
         <div>
-          <span>{"1 : " + (ratio || "-")}</span>
+          <span>{"1 : TODO"}</span>
         </div>
       </div>
     </div>
   )
 }
 
-export default function WrapForm({
+function UnwrapReport({
+  info, 
+  amountIn
+}: ReportProps) {
+  const amountsOut: AmountsOut = useAmountsOut(info?.wrapper?.address, undefined, amountIn)
+
+  return (
+    <div className="my-2">
+      <div className="d-flex justify-content-between my-2">
+        <span className="text-muted">You will receive</span>
+        <div>
+          <span>{amountsOut?.unwrap?.div(BigNumber.from(10).pow(info?.token?.decimals || 0))?.toString() || "0"}</span>
+          {" "}
+          <span>{info?.token.symbol}</span>
+        </div>
+      </div>
+      <div className="d-flex justify-content-between my-2">
+        <span className="text-muted">Ratio</span>
+        <div>
+          <span>{"1 : TODO"}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const getMaxAmount = (wrapOperationType: WrapOperationType, info: WrapperInfo): BigNumber => {
+  const tokenType = wrapOperationType === "wrap" ? "wrapper" : "token"
+  return info?.[tokenType]?.balance?.div(BigNumber.from(10).pow(info?.[tokenType]?.decimals || 0))
+}
+
+export default function WrapUnwrapForm({
   info,
+  functionName,
+  onSubmit,
 }: Props) {
-  const initialValues: WrapFormParams = {
+  const accountResult: AccountResult = useAccount()
+
+  const initialValues: WrapUnwrapFormParams = {
     amount: 0,
-  }
+    receiver: accountResult?.address,
+    functionName: functionName,
+  } 
 
   const validation = Yup.object().shape({
     amount: Yup.number()
       .required("Amount is required")
       .test('positive', 'Must be positive number', (val: number) => val > 0),
+    receiver: Yup.string().required()
   })
 
   const { config } = usePrepareContractWrite({
@@ -116,7 +153,7 @@ export default function WrapForm({
                           variant="light"
                           className="text-uppercase text-primary"
                           onClick={() => {
-                            setFieldValue("amount", info?.token?.balance?.div(BigNumber.from(10).pow(info?.token?.decimals)))
+                            setFieldValue("amount", getMaxAmount(values.functionName, info))
                           }}
                         >
                           Max
@@ -128,11 +165,18 @@ export default function WrapForm({
               </div>
             </div>
 
-            <Report
-              info={info}
-              amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.token?.decimals || 1))}
-            />
-
+            {values.functionName === "wrap" ? (
+              <WrapReport
+                info={info}
+                amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.token?.decimals || 0))}
+              />
+            ) : (
+              <UnwrapReport
+                info={info}
+                amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.wrapper?.decimals || 0))}
+              />
+            )}
+            
             <div className="mt-4">
               {BigNumber.from(values.amount).mul(info?.token.decimals || 0).lt(info?.tokenAllowance || BigNumber.from(0)) ? (
                 <Button 
