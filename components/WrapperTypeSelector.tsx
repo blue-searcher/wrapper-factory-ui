@@ -4,13 +4,13 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
 interface Props {
-  onChange: (id: Number) => void,
+  onChange: (id: number) => void,
 }
 
 export default function WrapperTypeSelector({
   onChange
 }: Props) {
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState<number>(0);
 
   return (
     <ButtonGroup 

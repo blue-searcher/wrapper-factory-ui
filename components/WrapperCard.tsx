@@ -6,41 +6,15 @@ import { BigNumber } from "ethers"
 import { WRAPPER_TYPES } from "../constants"
 import Badge from "react-bootstrap/Badge"
 import Link from 'next/link'
+import { useWrapperInfo, useWrapperById, useAmountsOut } from "../hooks"
+import { WrapperInfo, AmountsOut } from "../types"
 
 interface Props {
   wrapperId: number,
 }
 
-type BaseWrapperInfo = {
-  wrapperId: number,
-  
-  address: string,
-  wrapperType: number,
-  wrapperName: string,
-  wrapperSymbol: string,
-  wrapperDecimals: number
-
-  token: string,
-  tokenName: string,
-  tokenSymbol: string,
-  tokenDecimals: number
-}
-
-type TokenData = {
-  address: string,
-  name: string,
-  symbol: string,
-  decimals: number,
-}
-
-type ReadOutput<T> = {
-  data: T | undefined,
-  isLoading: boolean,
-  isError: boolean,
-}
-
 type WrapperTypeProps = {
-  baseInfo: BaseWrapperInfo | undefined,
+  info: WrapperInfo | undefined,
 }
 
 function formatAmount(amount: BigNumber | undefined, decimals: number): string {
@@ -51,40 +25,15 @@ function formatAmount(amount: BigNumber | undefined, decimals: number): string {
 }
 
 function FixedRatioWrapper({
-  baseInfo,
+  info,
 }: WrapperTypeProps) {
-  const fixedRatioRead: ReadOutput<Array<any>> = useContractReads({
-    contracts: [
-      {
-        address: baseInfo.address as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'ratio',
-      },
+  const amountsOut: AmountsOut = useAmountsOut(
+    info?.wrapper.address,
+    BigNumber.from(10).pow(info.token.decimals),
+    BigNumber.from(10).pow(info.wrapper.decimals)
+  )
 
-      {
-        address: baseInfo.address as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'getWrapAmountOut',
-        args: [BigNumber.from(10).pow(baseInfo.tokenDecimals)]
-      },
-      {
-        address: baseInfo.address as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'getUnwrapAmountOut',
-        args: [BigNumber.from(10).pow(baseInfo.wrapperDecimals)]
-      },
-
-      {
-        address: baseInfo.token as `0x${string}`,
-        abi: erc20ABI,
-        functionName: 'balanceOf',
-        args: [baseInfo.address as `0x${string}`]
-      },
-    ],
-    enabled: Boolean(baseInfo.address)
-  })
-
-  const wrapper = WRAPPER_TYPES.find(el => el.id === baseInfo.wrapperType);
+  const wrapper = WRAPPER_TYPES.find(el => el.id === info.wrapperType);
 
   const style = {
     card: {
@@ -98,14 +47,14 @@ function FixedRatioWrapper({
 
   return (
     <Link 
-      href={"/wrappers/" + baseInfo.address}
+      href={"/wrappers/" + info.wrapper.address}
     >
       <div className="p-2 py-3 my-2" style={style.card}>
         <div className="d-flex justify-content-between">
           <div>
-            <h5 className="d-inline-block">{wrapper.icon + " " + baseInfo.wrapperSymbol}</h5>
+            <h5 className="d-inline-block">{wrapper.icon + " " + info.wrapper.symbol}</h5>
             {" "}
-            <span className="text-muted">{baseInfo.wrapperName}</span>
+            <span className="text-muted">{info.wrapper.name}</span>
           </div>
           <div style={{ width: 120 }} className="text-center">
             <h5><Badge pill text={"dark"} bg={wrapper.color}>{wrapper.name}</Badge></h5>
@@ -122,7 +71,7 @@ function FixedRatioWrapper({
                   <div>
                     <div className="d-flex flex-column">
                       <h6 className="d-inline-block text-center">{"1"}</h6>
-                      <h6 className="d-inline-block">{baseInfo.tokenSymbol}</h6>
+                      <h6 className="d-inline-block">{info.token.symbol}</h6>
                     </div>
                   </div>
 
@@ -132,8 +81,8 @@ function FixedRatioWrapper({
 
                   <div>
                     <div className="d-flex flex-column">
-                      <h6 className="d-inline-block text-center">{formatAmount(fixedRatioRead?.data?.[1], baseInfo.wrapperDecimals)}</h6>
-                      <h6 className="d-inline-block">{baseInfo.wrapperSymbol}</h6>
+                      <h6 className="d-inline-block text-center">{formatAmount(amountsOut?.wrap, info.wrapper.decimals)}</h6>
+                      <h6 className="d-inline-block">{info.wrapper.symbol}</h6>
                     </div>
                   </div>
                 </div>
@@ -146,7 +95,7 @@ function FixedRatioWrapper({
                   <div>
                     <div className="d-flex flex-column">
                       <h6 className="d-inline-block text-center">{"1"}</h6>
-                      <h6 className="d-inline-block">{baseInfo.wrapperSymbol}</h6>
+                      <h6 className="d-inline-block">{info.wrapper.symbol}</h6>
                     </div>
                   </div>
 
@@ -156,8 +105,8 @@ function FixedRatioWrapper({
 
                   <div>
                     <div className="d-flex flex-column">
-                      <h6 className="d-inline-block text-center">{formatAmount(fixedRatioRead?.data?.[2], baseInfo.tokenDecimals)}</h6>
-                      <h6 className="d-inline-block">{baseInfo.tokenSymbol}</h6>
+                      <h6 className="d-inline-block text-center">{formatAmount(amountsOut?.unwrap, info.token.decimals)}</h6>
+                      <h6 className="d-inline-block">{info.token.symbol}</h6>
                     </div>
                   </div>
                 </div>
@@ -170,9 +119,9 @@ function FixedRatioWrapper({
               <div>
                 <span className="text-muted">Liquidity</span>
                 <br/>
-                <h5 className={"pt-1 d-inline-block"}>{formatAmount(fixedRatioRead?.data?.[3], baseInfo.tokenDecimals)}</h5>
+                <h5 className={"pt-1 d-inline-block"}>{formatAmount(info.liquidity, info.token.decimals)}</h5>
                 {" "}
-                <span className="text-muted">{baseInfo.tokenSymbol}</span>
+                <span className="text-muted">{info.token.symbol}</span>
               </div>
             </div>
           </div>
@@ -184,7 +133,7 @@ function FixedRatioWrapper({
 }
 
 function SharesBasedWrapper({
-  baseInfo,
+  info,
 }: WrapperTypeProps) {
   return (
     <div>
@@ -193,98 +142,21 @@ function SharesBasedWrapper({
   )
 }
 
-function formatBaseWrapperInfo(
-  readOutput: ReadOutput<Array<any>>, 
-  tokenReadOutput: ReadOutput<TokenData>,
-  wrapperId: number,
-  address: string
-): BaseWrapperInfo | undefined {
-  if (readOutput?.data && tokenReadOutput?.data) {
-    const result: BaseWrapperInfo = {
-      address: address,
-      wrapperId: wrapperId,
-      wrapperType: readOutput.data?.[0].toNumber(),
-      
-      wrapperName: readOutput.data?.[2],
-      wrapperSymbol: readOutput.data?.[3],
-      wrapperDecimals: readOutput.data?.[4],
-
-      token: readOutput.data[1],
-      tokenName: tokenReadOutput?.data?.name,
-      tokenSymbol: tokenReadOutput?.data?.symbol,
-      tokenDecimals: tokenReadOutput?.data?.decimals,
-    }
-    return result;
-  }
-
-  return undefined;
-}
-
 export default function WrapperCard({
   wrapperId,
 }: Props) {
-  const wrapperByIdRead: ReadOutput<string> = useContractRead({
-    address: FACTORY_ADDRESS as `0x${string}`,
-    abi: WRAPPER_FACTORY_ABI,
-    functionName: "wrapperById",
-    args: [wrapperId]
-  })
-
-  //Fetch common properties between all wrapper instances
-  const baseWrapperInfoRead: ReadOutput<Array<any>> = useContractReads({
-    contracts: [
-      {
-        address: wrapperByIdRead?.data as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'WRAPPER_TYPE',
-      },
-      {
-        address: wrapperByIdRead?.data as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'WRAPPED',
-      },
-      {
-        address: wrapperByIdRead?.data as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'name',
-      },
-      {
-        address: wrapperByIdRead?.data as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'symbol',
-      },
-      {
-        address: wrapperByIdRead?.data as `0x${string}`,
-        abi: FIXED_RATIO_ABI,
-        functionName: 'decimals',
-      },
-    ],
-    enabled: Boolean(wrapperByIdRead?.data),
-  })
-
-  const tokenRead: ReadOutput<TokenData> = useToken({ 
-    address: baseWrapperInfoRead?.data?.[1],
-    enabled: Boolean(baseWrapperInfoRead?.data?.[1]),
-  })
-
-  const baseInfo: BaseWrapperInfo = formatBaseWrapperInfo(
-    baseWrapperInfoRead, 
-    tokenRead,
-    wrapperId,
-    wrapperByIdRead?.data
-  )
-
-  console.log("baseInfo", baseInfo)
+  const address: `0x${string}` = useWrapperById(wrapperId)
+  const wrapperInfo: WrapperInfo = useWrapperInfo(address)
 
   return (
     <div>
-      {baseInfo?.wrapperType === 0 ? (
+      {wrapperInfo?.wrapperType === 0 ? (
         <FixedRatioWrapper
-          baseInfo={baseInfo}
+          info={wrapperInfo}
         />
-      ) : baseInfo?.wrapperType === 1 ? (
+      ) : wrapperInfo?.wrapperType === 1 ? (
         <SharesBasedWrapper
-          baseInfo={baseInfo}
+          info={wrapperInfo}
         />
       ) : (
         <></>

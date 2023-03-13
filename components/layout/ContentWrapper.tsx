@@ -3,8 +3,8 @@ import Footer from './Footer'
 import { ToastContainer } from 'react-toastify'
 
 interface Props {
-  title: String,
-  description: String,
+  title: string,
+  description: string,
   children: JSX.Element,
 }
 

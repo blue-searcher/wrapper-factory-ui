@@ -32,7 +32,6 @@ function InnerForm() {
 
   const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<FixedWrapperDeployParams>();
 
-  //TODO Do not fetch if tokenAddress is less than 42 chars 
   const tokenResult = useToken({ 
     address: values.tokenAddress as `0x${string}`,
     onError(error: any) {

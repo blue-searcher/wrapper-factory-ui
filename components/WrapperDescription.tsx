@@ -1,7 +1,7 @@
 import { WRAPPER_TYPES } from "../constants"
 
 interface Props {
-  wrapperId: Number,
+  wrapperId: number,
 }
 
 export default function WrapperDescription({

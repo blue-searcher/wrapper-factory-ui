@@ -40,7 +40,7 @@ export default function Topbar() {
     })
   }, [router])
 
-  const getPageLinkClassNames = (key) => {
+  const getPageLinkClassNames = (key: string) => {
     if (key === activePage) {
       return "border-bottom border-3 border-primary font-weight-bold text-dark"
     }

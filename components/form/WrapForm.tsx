@@ -9,28 +9,15 @@ import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
 import { BigNumber } from "ethers"
 import FIXED_RATIO_ABI from "../../abi/FixedRatio.json"
+import { UNIT } from "../../constants"
 import { useContractRead, usePrepareContractWrite, useContractWrite } from 'wagmi'
-
-export type WrapperInfo = {
-  address: string,
-  wrapperSymbol: string,
-  wrapperDecimals: number
-  wrapperBalance: BigNumber,
-
-  token: string,
-  tokenSymbol: string,
-  tokenDecimals: number,
-  tokenBalance: BigNumber,
-
-  allowance: BigNumber,
-  liquidity: BigNumber,
-}
+import { useAmountsOut, useRatio } from "../../hooks"
 
 interface Props {
   info: WrapperInfo,
 }
 
-type WrapParams = {
+type WrapFormParams = {
   amount: number,
 }
 
@@ -39,52 +26,27 @@ interface ReportProps {
   amountIn: BigNumber,
 }
 
-type ReadOutput<T> = {
-  data: T | undefined,
-  isLoading: boolean,
-  isError: boolean,
-}
-
 function Report({
   info, 
   amountIn
 }: ReportProps) {
-  const amountOutRead: ReadOutput<BigNumber> = useContractRead({
-    address: info?.address as `0x${string}`,
-    abi: FIXED_RATIO_ABI, //The kind of wrapper abi used here doesn't matter
-    functionName: "getWrapAmountOut",
-    args: [amountIn],
-    enabled: Boolean(amountIn && amountIn.gt(0))
-  })
-
-  const ratioRead: ReadOutput<BigNumber> = useContractRead({
-    address: info?.address as `0x${string}`,
-    abi: FIXED_RATIO_ABI, //The kind of wrapper abi used here doesn't matter
-    functionName: "ratio"
-  })
+  const amountsOut: AmountsOut = useAmountsOut(info?.wrapper?.address, amountIn, amountIn)
+  const ratio: number = useRatio(info?.wrapper?.address)
 
   return (
     <div className="my-2">
       <div className="d-flex justify-content-between my-2">
         <span className="text-muted">You will receive</span>
         <div>
-          {amountOutRead?.isLoading ? (
-            <Spinner size="sm"/>
-          ) : (
-            <span>{amountOutRead?.data?.div(BigNumber.from(10).pow(info?.wrapperDecimals || 0))?.toString() || "0"}</span>
-          )}
+          <span>{amountsOut?.wrap?.div(BigNumber.from(10).pow(info?.wrapper?.decimals || 0))?.toString() || "0"}</span>
           {" "}
-          <span>{info?.wrapperSymbol}</span>
+          <span>{info?.wrapper.symbol}</span>
         </div>
       </div>
       <div className="d-flex justify-content-between my-2">
         <span className="text-muted">Ratio</span>
         <div>
-          {ratioRead?.isLoading ? (
-            <Spinner size="sm"/>
-          ) : (
-            <span>{"1 : " + (ratioRead?.data?.div(BigNumber.from(10).pow(18))?.toString() || "-")}</span>
-          )}
+          <span>{"1 : " + (ratio || "-")}</span>
         </div>
       </div>
     </div>
@@ -94,7 +56,7 @@ function Report({
 export default function WrapForm({
   info,
 }: Props) {
-  const initialValues: WrapParams = {
+  const initialValues: WrapFormParams = {
     amount: 0,
   }
 
@@ -105,11 +67,11 @@ export default function WrapForm({
   })
 
   const { config } = usePrepareContractWrite({
-    address: info?.token as `0x${string}`,
+    address: info?.token?.address,
     abi: FIXED_RATIO_ABI,
     functionName: 'approve',
     args: [
-      info?.address as `0x${string}`,
+      info?.wrapper?.address,
       MaxUint256
     ],
     onError(error: any) {
@@ -154,7 +116,7 @@ export default function WrapForm({
                           variant="light"
                           className="text-uppercase text-primary"
                           onClick={() => {
-                            setFieldValue("amount", info?.tokenBalance.div(BigNumber.from(10).pow(info?.tokenDecimals)))
+                            setFieldValue("amount", info?.token?.balance?.div(BigNumber.from(10).pow(info?.token?.decimals)))
                           }}
                         >
                           Max
@@ -168,11 +130,11 @@ export default function WrapForm({
 
             <Report
               info={info}
-              amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.tokenDecimals || 1))}
+              amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.token?.decimals || 1))}
             />
 
             <div className="mt-4">
-              {BigNumber.from(values.amount).mul(info?.tokenDecimals || 0).lt(info?.allowance || BigNumber.from(0)) ? (
+              {BigNumber.from(values.amount).mul(info?.token.decimals || 0).lt(info?.tokenAllowance || BigNumber.from(0)) ? (
                 <Button 
                   variant="primary"
                   type="submit"
