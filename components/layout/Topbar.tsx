@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import { useAccount } from 'wagmi'
 import { useState, useEffect } from "react"
 import { useRouter } from 'next/router'
-import ConnectWallet from "../ConnectWallet"
+import { ConnectKitButton } from 'connectkit'
 
 type Page = {
   href: string,
@@ -30,7 +30,7 @@ export default function Topbar() {
   
   const router = useRouter()
 
-  const [activePage, setActivePage] = useState("")
+  const [activePage, setActivePage] = useState<string>("")
 
   useEffect(() => {
     PAGES.forEach((p: Page) => {
@@ -70,7 +70,7 @@ export default function Topbar() {
         </Navbar.Collapse>
 
         <Nav.Item>
-          <ConnectWallet />
+          <ConnectKitButton />
         </Nav.Item>
       </Container>
     </Navbar>

@@ -42,7 +42,7 @@ export default function Input({
 }: Props) {
   return (
     <>
-      <TextField 
+      <MuiInput 
         label={label} 
         variant={variant} 
         placeholder={placeholder}

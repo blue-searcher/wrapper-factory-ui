@@ -23,11 +23,11 @@ function formatWrapperInfo(
       name: additionalWrapperInfoRead.data?.[0],
       symbol: additionalWrapperInfoRead.data?.[1],
       decimals: additionalWrapperInfoRead.data?.[2],
-      balance: baseWrapperInfoRead.data?.[4],
+      balance: additionalWrapperInfoRead.data?.[4],
     }
 
     const result: WrapperInfo = {
-      wrapperType: baseWrapperInfoRead.data?.[0].toNumber(),
+      type: baseWrapperInfoRead.data?.[0].toNumber() === 0 ? "fixed" : "shares",
       
       wrapper: wrapperTokenData,
       token: tokenData,
@@ -41,8 +41,8 @@ function formatWrapperInfo(
   return undefined;
 }
 
-export function useWrapperInfo(address: `0x${string}`): WrapperInfo {
-  const [wrapperInfo, setWrapperInfo] = useState<WrapperInfo>()
+export function useWrapperInfo(address: `0x${string}`, watch: boolean = true): WrapperInfo {
+  const [info, setInfo] = useState<WrapperInfo>()
 
   const accountResult: AccountResult = useAccount()
 
@@ -81,6 +81,7 @@ export function useWrapperInfo(address: `0x${string}`): WrapperInfo {
       },
     ],
     enabled: Boolean(address),
+    watch: watch,
     onError(error: any) {
       toast.error("Error fetching wrapper information")
     },
@@ -126,19 +127,28 @@ export function useWrapperInfo(address: `0x${string}`): WrapperInfo {
       },
     ],
     enabled: Boolean(baseWrapperInfoRead?.data?.[1]),
+    watch: watch,
     onError(error: any) {
       toast.error("Error fetching token information")
     },
   })
 
   useEffect(() => {
+    if (baseWrapperInfoRead?.isLoading || additionalWrapperInfoRead?.isLoading) {
+      setIsLoading(true)
+    }
+
     const result: WrapperInfo = formatWrapperInfo(
       baseWrapperInfoRead, 
       additionalWrapperInfoRead,
       address
     )
-    setWrapperInfo(result)
-  }, [baseWrapperInfoRead?.data, additionalWrapperInfoRead?.data, accountResult?.data])
+    setInfo(result)
+  }, [
+    baseWrapperInfoRead?.data,
+    additionalWrapperInfoRead?.data,
+    accountResult?.address
+  ])
 
-  return wrapperInfo
+  return info
 }

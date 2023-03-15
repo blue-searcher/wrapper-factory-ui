@@ -3,10 +3,10 @@ import ContentWrapper from "../../components/layout/ContentWrapper"
 import CenteredContent from "../../components/layout/CenteredContent"
 import WrapperTypeSelector from "../../components/WrapperTypeSelector"
 import WrapperDescription from "../../components/WrapperDescription"
-import FactoryFixedWrapperForm from "../../components/form/FactoryFixedWrapperForm"
-import { FixedWrapperDeployParams } from "../../components/form/FactoryFixedWrapperForm"
+import WrapperDeployForm from "../../components/form/WrapperDeployForm"
 import Card from "react-bootstrap/Card"
 import { FACTORY_ADDRESS, EXPLORER_TX_BASE_LINK, UNIT } from "../../constants"
+import { WrapperDeployParams, WrapperType } from "../../types"
 import WRAPPER_FACTORY_ABI from "../../abi/WrapperFactory.json"
 import { prepareWriteContract, writeContract, SendTransactionResult } from '@wagmi/core'
 import { useWaitForTransaction } from 'wagmi'
@@ -17,8 +17,37 @@ import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
 import Link from 'next/link'
 
+const getFunctionName = (type: WrapperType): string => {
+  if (type === "fixed") {
+    return "deployFixedRatio"
+  }
+  if (type === "shares") {
+    return "deploySharesBased"
+  }
+}
+
+const getFunctionArgs = (data: WrapperDeployParams): Array<any> => {
+  if (data.type === "fixed") {
+    return [
+      data.tokenAddress,
+      BigNumber.from(data.wrapperAmount).mul(UNIT).div(data.tokenAmount),
+      data.name,
+      data.symbol,
+      BigNumber.from(data.decimals)
+    ]
+  }
+  if (data.type === "shares") {
+    return [
+      data.tokenAddress,
+      data.name,
+      data.symbol,
+      BigNumber.from(data.decimals)
+    ]
+  }
+}
+
 export default function Factory() {
-  const [wrapperId, setWrapperId] = useState<number>(0)
+  const [wrapperType, setWrapperType] = useState<WrapperType>("fixed")
   const [deployTxHash, setDeployTxHash] = useState<`0x${string}`>("0x0")
   const [createdWrapperAddress, setCreatedWrapperAddress] = useState<`0x${string}`>("0x0")
 
@@ -42,21 +71,17 @@ export default function Factory() {
     }
   }, [data])
 
-  const onSubmit = async (data: FixedWrapperDeployParams): Promise<void> => {
+  
+
+  const onSubmit = async (data: WrapperDeployParams): Promise<void> => {
     setDeployTxHash("0x0")
     setCreatedWrapperAddress("0x0")
 
     return prepareWriteContract({
       address: FACTORY_ADDRESS,
       abi: WRAPPER_FACTORY_ABI,
-      functionName: 'deployFixedRatio',
-      args: [
-        data.tokenAddress,
-        BigNumber.from(data.wrapperAmount).div(data.tokenAmount).mul(UNIT),
-        data.name,
-        data.symbol,
-        BigNumber.from(data.decimals)
-      ],
+      functionName: getFunctionName(data.type),
+      args: getFunctionArgs(data),
     })
     .then((config) => {
       return writeContract(config)
@@ -81,17 +106,21 @@ export default function Factory() {
       <CenteredContent size="sm">
         <Card className="p-0 m-0">
           <div className="w-100" >
-            <WrapperTypeSelector onChange={(id: number) => setWrapperId(id)} />
-            <WrapperDescription wrapperId={wrapperId} />
+            <WrapperTypeSelector 
+              value={wrapperType}
+              onChange={(type: WrapperType) => setWrapperType(type)} 
+            />
+            <WrapperDescription 
+              type={wrapperType} 
+            />
           </div>
 
           <Card.Body className="px-4">
             <div>
-              {wrapperId === 0 ? (
-                <FactoryFixedWrapperForm onSubmit={onSubmit} />
-              ) : (
-                <span>TODO</span>
-              )}
+              <WrapperDeployForm 
+                onSubmit={onSubmit} 
+                type={wrapperType}
+              />
             </div>
 
             {(Boolean(deployTxHash) && deployTxHash.length > 3 && !data) && (

@@ -1,13 +1,14 @@
-import { WRAPPER_TYPES } from "../constants"
+import { WRAPPER_TYPES, WrapperTypeInfo } from "../constants"
+import { WrapperType } from "../types"
 
 interface Props {
-  wrapperId: number,
+  type: WrapperType
 }
 
 export default function WrapperDescription({
-  wrapperId
+  type
 }: Props) {
-  const wrapper = WRAPPER_TYPES.find(el => el.id === wrapperId);
+  const wrapper: WrapperTypeInfo = WRAPPER_TYPES.find(el => el.id === type);
 
   return (
     <div className="text-justify mt-2 text-muted px-4 py-3 ">

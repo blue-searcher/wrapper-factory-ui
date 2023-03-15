@@ -23,7 +23,7 @@ export default function ContentWrapper({
   };
 
   return (
-    <div style={{backgroundColor: "#f2f4f6"}}>
+    <div>
       <Topbar />
       
       <div className="container text-center" style={style.heading}>

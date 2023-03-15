@@ -3,6 +3,7 @@ import { ReadOutput, AmountsOut } from "../types"
 import { useContractReads } from "wagmi"
 import FIXED_RATIO_ABI from "../abi/FixedRatio.json"
 import { toast } from 'react-toastify'
+import { BigNumber } from "ethers"
 
 export function useAmountsOut(
   address: `0x${string}`,
@@ -31,7 +32,7 @@ export function useAmountsOut(
 
   const amountsOutRead: ReadOutput<Array<any>> = useContractReads({
     contracts: contractCalls,
-    enabled: Boolean(address && contractCalls.length > 0),
+    enabled: Boolean(address && address.length > 3 && contractCalls.length > 0),
     onError(error: any) {
       toast.error("Error fetching amounts out")
     },
@@ -39,8 +40,9 @@ export function useAmountsOut(
 
   useEffect(() => {
     const result: AmountsOut = {
-      wrap: amountsOutRead?.data?.[0],
-      unwrap: amountsOutRead?.data?.[1],
+      wrap: tokenAmountIn ? amountsOutRead?.data?.[0] : undefined,
+      unwrap: (tokenAmountIn && wrapperAmountIn) ? amountsOutRead?.data?.[1] 
+        : (!tokenAmountIn && wrapperAmountIn) ? amountsOutRead?.data?.[0] : undefined,
     }
 
     setAmountsOut(result)

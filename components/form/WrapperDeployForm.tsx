@@ -9,31 +9,23 @@ import { AddressZero } from "@ethersproject/constants"
 import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
 import ConnectWallet from "../ConnectWallet"
-
-export type FixedWrapperDeployParams = {
-  tokenAddress: string,
-  name: string,
-  symbol: string,
-  decimals: number,
-
-  tokenAmount: number,
-  wrapperAmount: number,
-}
+import { WrapperDeployParams, AccountResult, WrapperType } from "../../types"
 
 interface Props {
-  onSubmit: (data: FixedWrapperDeployParams) => Promise<void>,
+  type: WrapperType,
+  onSubmit: (data: WrapperDeployParams) => Promise<void>,
 }
 
 //0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e - YFI mainnet
 //0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6 - weth goerli
 //0x582072589dA9Dc9de7cb14aB98bd550A531909c4 - test token goerli
 function InnerForm() {
-  const { isConnecting, isConnected, isReconnecting } = useAccount()
+  const accountResult: AccountResult = useAccount()
 
-  const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<FixedWrapperDeployParams>();
+  const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<WrapperDeployParams>();
 
   const tokenResult = useToken({ 
-    address: values.tokenAddress as `0x${string}`,
+    address: values.tokenAddress,
     onError(error: any) {
       toast.error("Error fetching token information")
     },
@@ -93,40 +85,42 @@ function InnerForm() {
       </div>
     </div>
 
-    <div className="form-group py-4">
-      <label>Ratio</label>
-      <div className="d-flex justify-content-between text-center">
-        <div>
-          <Field
-            type="number"
-            variant="outlined"
-            name="tokenAmount"
-            component={Input}
-            className="p-0 text-center"
-          />
-          <br/>
-          <span className="font-weight-bold">{token?.symbol || "TOKEN"}</span>
-        </div>
+    {values.type === "fixed" && (
+      <div className="form-group py-4">
+        <label>Ratio</label>
+        <div className="d-flex justify-content-between text-center">
+          <div>
+            <Field
+              type="number"
+              variant="outlined"
+              name="tokenAmount"
+              component={Input}
+              className="p-0 text-center"
+            />
+            <br/>
+            <span className="font-weight-bold">{token?.symbol || "TOKEN"}</span>
+          </div>
 
-        <div className="w-50">
-          <h2 className="text-primary">{"↔️"}</h2>
-        </div>
+          <div className="w-50">
+            <h2 className="text-primary">{"↔️"}</h2>
+          </div>
 
-        <div>
-          <Field
-            type="number"
-            variant="outlined"
-            name="wrapperAmount"
-            component={Input}
-          />
-          <br/>
-          <span className="font-weight-bold">{values?.symbol || "WRAPPER"}</span>
+          <div>
+            <Field
+              type="number"
+              variant="outlined"
+              name="wrapperAmount"
+              component={Input}
+            />
+            <br/>
+            <span className="font-weight-bold">{values?.symbol || "WRAPPER"}</span>
+          </div>
         </div>
       </div>
-    </div>
+    )}
 
     <div className="mt-4">
-      {(isConnecting || !isConnected || isReconnecting) ? (
+      {(accountResult?.isConnecting || !accountResult?.isConnected || accountResult?.isReconnecting) ? (
         <div className="d-flex">
           <>
             <ConnectWallet 
@@ -159,12 +153,15 @@ function InnerForm() {
 }
 
 
-export default function FactoryFixedWrapperForm({
+export default function WrapperDeployForm({
+  type,
   onSubmit
 }: Props) {
 
-  const initialValues: FixedWrapperDeployParams = {
-    tokenAddress: "",
+  const initialValues: WrapperDeployParams = {
+    type: type,
+
+    tokenAddress: "0x0",
     name: "",
     symbol: "",
     decimals: 18,
@@ -193,7 +190,10 @@ export default function FactoryFixedWrapperForm({
       <Formik
         initialValues={initialValues}
         validationSchema={validation}
+        enableReinitialize
         validateOnMount
+        validateOnBlur
+        validateOnChange
         onSubmit={ async (values, { setSubmitting }) => {
           await onSubmit(values)
           setSubmitting(false)

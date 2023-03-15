@@ -24,7 +24,9 @@ export default function App({ Component, pageProps }: AppProps) {
           <title>Wrapper Factory</title>
         </NextHead>
 
-        {mounted && <Component {...pageProps} />}
+        <div style={{ backgroundColor: "#f2f4f6" }}>
+          {mounted && <Component {...pageProps} />}
+        </div>
       </ConnectKitProvider>
     </WagmiConfig>
   )

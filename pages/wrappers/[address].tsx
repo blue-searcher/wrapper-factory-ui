@@ -3,20 +3,24 @@ import CenteredContent from "../../components/layout/CenteredContent"
 import { useRouter } from 'next/router'
 import { useState } from "react"
 import Card from "react-bootstrap/Card"
-import OperationSelector from "../../components/OperationSelector"
+import WrapOperationSelector from "../../components/WrapOperationSelector"
 import WrapUnwrapForm from "../../components/form/WrapUnwrapForm"
 import { useWaitForTransaction } from 'wagmi'
 import { prepareWriteContract, writeContract, SendTransactionResult } from '@wagmi/core'
 import FIXED_RATIO_ABI from "../../abi/FixedRatio.json"
-import UserBalances from "../../components/UserBalances"
-import { ReadOutput, WrapUnwrapFormParams } from "../../types"
+import { WrapUnwrapFormParams, WrapperInfo, WrapOperationType } from "../../types"
 import { useWrapperInfo } from "../../hooks"
+import { EXPLORER_TX_BASE_LINK } from "../../constants"
+import { toast } from 'react-toastify'
+import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
+import { BigNumber } from "ethers"
 
 export default function Wrapper() {
   const router = useRouter()
   const { address } = router.query
 
-  const [operation, setOperation] = useState<number>(0)
+  const [wrapOperation, setWrapOperation] = useState<WrapOperationType>("wrap")
   const [txHash, setTxHash] = useState<`0x${string}`>("0x0")
 
   const info: WrapperInfo = useWrapperInfo(address as `0x${string}`)
@@ -35,12 +39,16 @@ export default function Wrapper() {
   const onSubmit = async (data: WrapUnwrapFormParams): Promise<void> => {
     setTxHash("0x0")
 
+    const amountIn: BigNumber = data.functionName === "wrap" 
+      ? BigNumber.from(data.amount).mul(BigNumber.from(10).pow(info.token.decimals))
+      : BigNumber.from(data.amount).mul(BigNumber.from(10).pow(info.wrapper.decimals))
+
     return prepareWriteContract({
-      address: address,
+      address: address as `0x${string}`,
       abi: FIXED_RATIO_ABI,
       functionName: data.functionName,
       args: [
-        data.amount,
+        amountIn,
         data.receiver
       ],
     })
@@ -67,19 +75,49 @@ export default function Wrapper() {
       <CenteredContent size="sm">
         <Card className="p-4">
           <div className="py-4 px-2 text-center">
-            <OperationSelector 
-              value={operation} 
-              onChange={(id: number) => setOperation(id)} 
+            <WrapOperationSelector 
+              value={wrapOperation} 
+              onChange={(operationType: WrapOperationType) => setWrapOperation(operationType)} 
             />
           </div>
 
           <div>
             <WrapUnwrapForm 
               info={info}
-              functionName={operation === 0 ? "wrap" : "unwrap"}
+              functionName={wrapOperation}
               onSubmit={onSubmit}
             />
           </div>
+
+          {(Boolean(txHash) && txHash.length > 3 && !data) && (
+            <Alert 
+              className="my-4 text-center "
+              variant="info"
+            >
+              <Spinner size="sm" />
+              {" "}
+              <span>Your transaction has been submitted.</span>
+              {" 🔗"}
+              <a
+                href={EXPLORER_TX_BASE_LINK + txHash}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>Check status on etherscan.</span>
+              </a>
+            </Alert>
+          )}
+
+          {data && (
+            <Alert 
+              className="my-4 text-center "
+              variant="success"
+            >
+              <span>{"✅ Your "}</span>
+              <span>{wrapOperation}</span>
+              <span>{" transaction has been confirmed."}</span>
+            </Alert>
+          )}
         </Card>
       </CenteredContent>
     </ContentWrapper>

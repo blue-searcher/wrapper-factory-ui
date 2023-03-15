@@ -4,6 +4,7 @@ import { UNIT } from "../constants"
 import { useContractRead } from "wagmi"
 import FIXED_RATIO_ABI from "../abi/FixedRatio.json"
 import { toast } from 'react-toastify'
+import { BigNumber } from "ethers"
 
 export function useRatio(address: `0x${string}`): number {
   const [ratio, setRatio] = useState<number>()
