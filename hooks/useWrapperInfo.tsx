@@ -134,10 +134,6 @@ export function useWrapperInfo(address: `0x${string}`, watch: boolean = true): W
   })
 
   useEffect(() => {
-    if (baseWrapperInfoRead?.isLoading || additionalWrapperInfoRead?.isLoading) {
-      setIsLoading(true)
-    }
-
     const result: WrapperInfo = formatWrapperInfo(
       baseWrapperInfoRead, 
       additionalWrapperInfoRead,

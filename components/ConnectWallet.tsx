@@ -25,7 +25,7 @@ export default function ConnectWallet({
               <Spinner size="sm"/>
             )}
 
-            {isConnected ? ensName ?? truncatedAddress : (isConnecting ? "" : "🦊") + "Connect Wallet"}
+            {isConnected ? ensName ?? truncatedAddress : (isConnecting ? "" : "🦊 ") + "Connect Wallet"}
           </Button>
         );
       }}

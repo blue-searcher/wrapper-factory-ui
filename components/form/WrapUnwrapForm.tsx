@@ -16,6 +16,8 @@ import { WrapUnwrapFormParams, WrapperInfo, AccountResult, AmountsOut, WrapOpera
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { EXPLORER_ADDRESS_BASE_LINK } from "../../constants"
 import ConnectWallet from "../ConnectWallet"
+import BigDecimalInput from "./BigDecimalInput"
+import { parseUnits, formatUnits } from "@ethersproject/units"
 
 interface Props {
   info: WrapperInfo,
@@ -39,7 +41,7 @@ function WrapReport({
       <div className="d-flex justify-content-between my-2">
         <span className="text-muted">You will receive</span>
         <div>
-          <span>{amountsOut?.wrap?.div(BigNumber.from(10).pow(info?.wrapper?.decimals || 0))?.toString() || "0"}</span>
+          <span>{formatUnits(amountsOut?.wrap || "0", info?.wrapper?.decimals || 0)}</span>
           {" "}
           <span>{info?.wrapper.symbol}</span>
         </div>
@@ -59,7 +61,7 @@ function UnwrapReport({
       <div className="d-flex justify-content-between my-2">
         <span className="text-muted">You will receive</span>
         <div>
-          <span>{amountsOut?.unwrap?.div(BigNumber.from(10).pow(info?.token?.decimals || 0))?.toString() || "0"}</span>
+          <span>{formatUnits(amountsOut?.unwrap || "0", info?.token?.decimals || 0)}</span>
           {" "}
           <span>{info?.token.symbol}</span>
         </div>
@@ -68,26 +70,9 @@ function UnwrapReport({
   )
 }
 
-const getMaxAmount = (wrapOperationType: WrapOperationType, info: WrapperInfo): number => {
-  const tokenType = wrapOperationType === "wrap" ? "token" : "wrapper"
-  return info?.[tokenType]?.balance?.div(BigNumber.from(10).pow(info?.[tokenType]?.decimals || 0))?.toNumber()
-}
-
-const isApproveRequired = (amount: number, info: WrapperInfo): boolean => {
+const isApproveRequired = (amount: BigNumber, info: WrapperInfo): boolean => {
   return info?.tokenAllowance?.eq(BigNumber.from(0)) 
-    || BigNumber.from(amount).mul(BigNumber.from(10).pow(info?.token.decimals || 0))
-      .gt(info?.tokenAllowance || BigNumber.from(0))
-}
-
-const valueToBigNumber = (
-  amount: number, 
-  operation: WrapOperationType, 
-  info: WrapperInfo
-): BigNumber => {
-  if (operation === "wrap") {
-    return BigNumber.from(amount).mul(BigNumber.from(10).pow(info?.token?.decimals || 0))
-  }
-  return BigNumber.from(amount).mul(BigNumber.from(10).pow(info?.wrapper?.decimals || 0))
+    || amount.gt(info?.tokenAllowance || BigNumber.from(0))
 }
 
 export default function WrapUnwrapForm({
@@ -98,7 +83,7 @@ export default function WrapUnwrapForm({
   const accountResult: AccountResult = useAccount()
 
   const initialValues: WrapUnwrapFormParams = {
-    amount: 0,
+    amount: BigNumber.from(0),
     receiver: accountResult?.address,
     functionName: functionName,
   } 
@@ -106,15 +91,7 @@ export default function WrapUnwrapForm({
   const validation = Yup.object().shape({
     amount: Yup.number()
       .required("Amount is required")
-      .test('positive', 'Must be positive number', (val: number) => val > 0)
-      .test('cantExceedBalance', "Can't exceed balance", (val: number) => {
-        if (val) {
-          if (functionName === "wrap") {
-            return BigNumber.from(val).mul(BigNumber.from(10).pow(info?.token?.decimals || 0)).lte(info?.token?.balance)
-          }
-          return BigNumber.from(val).mul(BigNumber.from(10).pow(info?.wrapper?.decimals || 0)).lte(info?.wrapper?.balance)
-        }
-      }),
+      .test('positive', 'Must be positive number', (val: number) => val > 0),
     receiver: Yup.string().required()
   })
 
@@ -181,23 +158,12 @@ export default function WrapUnwrapForm({
               <div className="col-12">
                 <div className="d-flex">
                   <div className="w-100">
-                    <Field
-                      type="number"
+                    <BigDecimalInput
                       name="amount"
-                      component={Input}
-                      label="Amount"
-                      placeholder={"Amount"}
-                      endAdornment={
-                        <Button 
-                          variant="light"
-                          className="text-uppercase text-primary"
-                          onClick={() => {
-                            setFieldValue("amount", getMaxAmount(values.functionName, info))
-                          }}
-                        >
-                          Max
-                        </Button>
-                      }
+                      decimals={values.functionName === "wrap" ? info?.token?.decimals : info?.wrapper?.decimals}
+                      onChange={(v: BigNumber) => setFieldValue("amount", v)}
+                      defaultValue={"0"}
+                      max={values.functionName === "wrap" ? info?.token?.balance : info?.wrapper?.balance}
                     />
                   </div>
                 </div>
@@ -207,12 +173,12 @@ export default function WrapUnwrapForm({
             {values.functionName === "wrap" ? (
               <WrapReport
                 info={info}
-                amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.token?.decimals || 0))}
+                amountIn={values.amount}
               />
             ) : (
               <UnwrapReport
                 info={info}
-                amountIn={BigNumber.from(values.amount).mul(BigNumber.from(10).pow(info?.wrapper?.decimals || 0))}
+                amountIn={values.amount}
               />
             )}
               

@@ -43,7 +43,7 @@ export type AmountsOut = {
 export type WrapOperationType = "wrap" | "unwrap"
 
 export type WrapUnwrapFormParams = {
-  amount: number,
+  amount: BigNumber,
   receiver: `0x${string}`,
   functionName: WrapOperationType,
 }
@@ -56,6 +56,8 @@ export type WrapperDeployParams = {
   symbol: string,
   decimals: number,
 
-  tokenAmount: number,
-  wrapperAmount: number,
+  tokenAmount: BigNumber,
+  wrapperAmount: BigNumber,
 }
+
+export type WrapperListFilter = "all" | "owned"

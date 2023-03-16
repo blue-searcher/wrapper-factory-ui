@@ -30,7 +30,7 @@ const getFunctionArgs = (data: WrapperDeployParams): Array<any> => {
   if (data.type === "fixed") {
     return [
       data.tokenAddress,
-      BigNumber.from(data.wrapperAmount).mul(UNIT).div(data.tokenAmount),
+      data.wrapperAmount.mul(UNIT).div(data.tokenAmount),
       data.name,
       data.symbol,
       BigNumber.from(data.decimals)

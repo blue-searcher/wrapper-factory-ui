@@ -30,18 +30,22 @@ const getFieldCSSClasses = (touched, error) => {
   return classes.join(" ");
 };
 
-export default function Input({
-  field, 
-  form: { touched, errors }, 
-  label,
-  variant = "standard",
-  type,
-  placeholder,
-  startAdornment = undefined,
-  endAdornment = undefined
-}: Props) {
+export default function Input(props: Props) {
+  const {
+    field, 
+    form: { touched, errors }, 
+    label,
+    variant = "standard",
+    type,
+    placeholder,
+    startAdornment = undefined,
+    endAdornment = undefined,
+    ...rest
+  } = props
+
   return (
     <>
+      {label && (<label>{label}</label>)}
       <MuiInput 
         label={label} 
         variant={variant} 
@@ -50,6 +54,7 @@ export default function Input({
         startAdornment={startAdornment}
         endAdornment={endAdornment}
         {...field}
+        {...rest}
       />
       {touched[field.name] && errors[field.name] && (
         <div className="invalid-feedback">{errors[field.name]}</div>

@@ -39,16 +39,12 @@ export default function Wrapper() {
   const onSubmit = async (data: WrapUnwrapFormParams): Promise<void> => {
     setTxHash("0x0")
 
-    const amountIn: BigNumber = data.functionName === "wrap" 
-      ? BigNumber.from(data.amount).mul(BigNumber.from(10).pow(info.token.decimals))
-      : BigNumber.from(data.amount).mul(BigNumber.from(10).pow(info.wrapper.decimals))
-
     return prepareWriteContract({
       address: address as `0x${string}`,
       abi: FIXED_RATIO_ABI,
       functionName: data.functionName,
       args: [
-        amountIn,
+        data.amount,
         data.receiver
       ],
     })

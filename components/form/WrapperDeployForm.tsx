@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Formik, Form, Field, useFormikContext } from 'formik'
 import * as Yup from 'yup'
 import Input from "./Input"
@@ -10,14 +10,15 @@ import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
 import ConnectWallet from "../ConnectWallet"
 import { WrapperDeployParams, AccountResult, WrapperType } from "../../types"
+import { BigNumber } from "ethers"
+import BigDecimalInput from "./BigDecimalInput"
+import { parseUnits } from "@ethersproject/units"
 
 interface Props {
   type: WrapperType,
   onSubmit: (data: WrapperDeployParams) => Promise<void>,
 }
 
-//0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e - YFI mainnet
-//0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6 - weth goerli
 //0x582072589dA9Dc9de7cb14aB98bd550A531909c4 - test token goerli
 function InnerForm() {
   const accountResult: AccountResult = useAccount()
@@ -29,7 +30,7 @@ function InnerForm() {
     onError(error: any) {
       toast.error("Error fetching token information")
     },
-    enabled: Boolean(values.tokenAddress?.length === 42)
+    enabled: Boolean(values.tokenAddress?.length === 42 && values.tokenAddress.slice(0, 2) === "0x")
   })
   const token = tokenResult?.data
 
@@ -38,6 +39,8 @@ function InnerForm() {
       setFieldValue("symbol", "w" + token?.symbol)
       setFieldValue("name", "Wrapped " + token?.name)
       setFieldValue("decimals", token?.decimals)
+
+      setFieldValue("tokenAmount", parseUnits("1", token?.decimals))
     }
   }, [token])
 
@@ -90,12 +93,11 @@ function InnerForm() {
         <label>Ratio</label>
         <div className="d-flex justify-content-between text-center">
           <div>
-            <Field
-              type="number"
-              variant="outlined"
+            <BigDecimalInput
               name="tokenAmount"
-              component={Input}
-              className="p-0 text-center"
+              decimals={token?.decimals || 0}
+              onChange={(v: BigNumber) => setFieldValue("tokenAmount", v)}
+              defaultValue={"1"}
             />
             <br/>
             <span className="font-weight-bold">{token?.symbol || "TOKEN"}</span>
@@ -106,11 +108,11 @@ function InnerForm() {
           </div>
 
           <div>
-            <Field
-              type="number"
-              variant="outlined"
+            <BigDecimalInput
               name="wrapperAmount"
-              component={Input}
+              decimals={values.decimals}
+              onChange={(v: BigNumber) => setFieldValue("wrapperAmount", v)}
+              defaultValue={"1"}
             />
             <br/>
             <span className="font-weight-bold">{values?.symbol || "WRAPPER"}</span>
@@ -161,18 +163,19 @@ export default function WrapperDeployForm({
   const initialValues: WrapperDeployParams = {
     type: type,
 
-    tokenAddress: "0x0",
+    tokenAddress: "0x",
     name: "",
     symbol: "",
     decimals: 18,
 
-    tokenAmount: 1,
-    wrapperAmount: 1,
+    tokenAmount: BigNumber.from(0),
+    wrapperAmount: parseUnits("1", 18),
   }
 
   const validation = Yup.object().shape({
     tokenAddress: Yup.string().required("Token address is required")
-      .test('len', 'Must be exactly 42 characters', (val: string) => val.length === 42),
+      .test('len', 'Must be exactly 42 characters', (val: string) => val.length === 42)
+      .test('starting 0x', 'Must be 0x prefixed', (val: string) => val.slice(0, 2) === "0x"),
     name: Yup.string().required("Name is required"),
     symbol: Yup.string().required("Symbol is required"),
     decimals: Yup.number().integer()
@@ -180,8 +183,10 @@ export default function WrapperDeployForm({
       .min(0, "Lower value allowed is 0")
       .max(18, "Greatest value allowed is 18"),
     tokenAmount: Yup.number()
+      .required("Token amount is required")
       .test('positive', 'Must be positive number', (val: number) => val > 0),
     wrapperAmount: Yup.number()
+      .required("Wrapper amount is required")
       .test('positive', 'Must be positive number', (val: number) => val > 0),
   })
 

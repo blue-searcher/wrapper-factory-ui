@@ -48,15 +48,15 @@ export default function Topbar() {
   }
 
   return (
-    <Navbar expand="md" style={{ marginBottom: 50 }}>
+    <Navbar expand="md" >
       <Container>
-        <Navbar.Brand href="#">
-          <div className="font-weight-bold">Wrapper Factory</div>
+        <Navbar.Brand href="/">
+          <h4 className="font-weight-bold">Wrapper Factory</h4>
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="text-center justify-content-center">
-          <Nav className="text-uppercase"> 
+          <Nav > 
             {PAGES.map((p: Page) => (
               <Nav.Link 
                 className={"px-3 py-2 " + getPageLinkClassNames(p.name)}

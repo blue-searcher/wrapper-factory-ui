@@ -15,7 +15,7 @@ export default function ContentWrapper({
 }: Props) {
   const style = {
     heading: {
-      marginTop: 50,
+      marginTop: 30,
     },
     content: {
       marginTop: 5,
@@ -23,19 +23,25 @@ export default function ContentWrapper({
   };
 
   return (
-    <div>
-      <Topbar />
+    <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
+      <div>
+        <Topbar />  
+      </div>
       
-      <div className="container text-center" style={style.heading}>
-        <h3 className="text-uppercase">{title}</h3>
-        <span className="text-muted">{description}</span>
+      <div>
+        <div className="container text-center" style={style.heading}>
+          <h3 className="text-uppercase">{title}</h3>
+          <span className="text-muted">{description}</span>
+        </div>
+
+        <div className="container" style={style.content}>
+          {children}
+        </div>
       </div>
 
-      <div className="container" style={style.content}>
-        {children}
+      <div>
+        <Footer />
       </div>
-
-      <Footer />
 
       <ToastContainer
         position="bottom-center"

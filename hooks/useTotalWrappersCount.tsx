@@ -19,7 +19,7 @@ export function useTotalWrappersCount(): number {
   })
 
   useEffect(() => {
-    const totalWrappers: number = nextIdRead && nextIdRead.data ? (Math.max(nextIdRead.data.toNumber() - 1, 0)) : 0
+    const totalWrappers: number = nextIdRead && nextIdRead.data ? (Math.max(nextIdRead.data.toNumber(), 0)) : 0
     setCount(totalWrappers)
   }, [nextIdRead?.data])
 

@@ -7,7 +7,9 @@ import { FaEthereum } from 'react-icons/fa'
 
 export default function Footer() {
   return (
-    <Navbar style={{ marginTop: 40, paddingBottom: 20, paddingTop: 20 }}>
+    <Navbar 
+      className="w-100 text-center"
+    >
       <Container>
         <Navbar.Collapse className="text-center justify-content-center">
           <div className="px-4">
