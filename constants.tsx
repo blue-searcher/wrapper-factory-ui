@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers"
 import { WrapperType } from "./types"
 
-export const FACTORY_ADDRESS: `0x${string}` = "0xdD71F555DF632a553d60a7917E1d7cf6C3f06F16"
+export const FACTORY_ADDRESS: `0x${string}` = "0xE6eB6B9AB5DeB33e77A63673d6a2c2C06539373e"
 export const EXPLORER_TX_BASE_LINK: string = "https://goerli.etherscan.io/tx/"
 export const EXPLORER_ADDRESS_BASE_LINK: string = "https://goerli.etherscan.io/address/"
 

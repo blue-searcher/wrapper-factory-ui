@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import { ConnectKitButton } from 'connectkit'
 import { FaGithub } from 'react-icons/fa'
 import { FaEthereum } from 'react-icons/fa'
+import { EXPLORER_ADDRESS_BASE_LINK, FACTORY_ADDRESS } from "../../constants"
 
 export default function Footer() {
   return (
@@ -14,7 +15,7 @@ export default function Footer() {
         <Navbar.Collapse className="text-center justify-content-center">
           <div className="px-4">
             <a
-              href="https://github.com/blue-searcher/wrapped-factory"
+              href="https://github.com/blue-searcher/wrapper-factory"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-dark"
@@ -24,7 +25,7 @@ export default function Footer() {
           </div>
           <div className="px-4">
             <a
-              href="https://goerli.etherscan.io/address/0x23b1ee0f7dab3a47c0326c75b339a6af53379278"
+              href={EXPLORER_ADDRESS_BASE_LINK + FACTORY_ADDRESS}
               target="_blank" 
               rel="noopener noreferrer"
               className="text-dark"
