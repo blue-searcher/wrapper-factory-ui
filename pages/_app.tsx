@@ -7,7 +7,7 @@ import NextHead from 'next/head'
 import * as React from 'react'
 import { WagmiConfig } from 'wagmi'
 
-import { client } from './wagmi'
+import { client } from '../wagmi'
 
 /*
 <style global jsx>{`
