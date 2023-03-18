@@ -11,7 +11,7 @@ interface Props {
   defaultValue?: string
   onChange: (v: BigNumber) => void,
   decimals: number
-  max: BigNumber | undefined
+  max?: BigNumber
 }
 
 export default function BigDecimalInput(props: Props) {

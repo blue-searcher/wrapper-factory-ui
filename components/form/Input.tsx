@@ -13,7 +13,6 @@ type FormikProps = {
 interface Props {
   field: Field
   form: FormikProps
-  variant: string
   label: string
   type: string
   placeholder: string | undefined
@@ -35,7 +34,6 @@ export default function Input(props: Props) {
     field, 
     form: { touched, errors }, 
     label,
-    variant = "standard",
     type,
     placeholder,
     startAdornment = undefined,
@@ -47,8 +45,6 @@ export default function Input(props: Props) {
     <>
       {label && (<label>{label}</label>)}
       <MuiInput 
-        label={label} 
-        variant={variant} 
         placeholder={placeholder}
         className={getFieldCSSClasses(touched[field.name], errors[field.name])}
         startAdornment={startAdornment}

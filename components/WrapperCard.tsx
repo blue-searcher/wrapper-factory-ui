@@ -40,21 +40,20 @@ export default function WrapperCard({
 
   const wrapper: WrapperTypeInfo = WRAPPER_TYPES.find(el => el.id === info?.type);
 
-  const style = {
-    card: {
-      borderTop: "1px solid #dee2e6",
-      borderRight: "1px solid #dee2e6",
-      borderBottom: "1px solid #dee2e6",
-      borderLeft: "5px solid var(--bs-" + (wrapper?.color || "primary") + ")",
-      position: "relative",
-      borderRadius: "0 5px 5px 0",
-    }
-  }
-
   return (
     <>
       {info && canBeRendered(info, filter) && (
-        <Card className="my-2" style={style.card}>
+        <Card 
+          className="my-2" 
+          style={{
+            borderTop: "1px solid #dee2e6",
+            borderRight: "1px solid #dee2e6",
+            borderBottom: "1px solid #dee2e6",
+            borderLeft: "5px solid var(--bs-" + (wrapper?.color || "primary") + ")",
+            position: "relative",
+            borderRadius: "0 5px 5px 0",
+          }}
+        >
           <Link 
             href={"/wrappers/" + info?.wrapper?.address}
           > 
