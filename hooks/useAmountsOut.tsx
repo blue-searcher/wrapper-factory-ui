@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { ReadOutput, AmountsOut } from "../types"
 import { useContractReads } from "wagmi"
-import FIXED_RATIO_ABI from "../abi/FixedRatio.json"
+import WRAPPER_TOKEN_ABI from "../abi/WrapperToken.json"
 import { toast } from 'react-toastify'
 import { BigNumber } from "ethers"
 
@@ -16,7 +16,7 @@ export function useAmountsOut(
   if (tokenAmountIn) {
     contractCalls.push({
       address: address,
-      abi: FIXED_RATIO_ABI,
+      abi: WRAPPER_TOKEN_ABI,
       functionName: 'getWrapAmountOut',
       args: [tokenAmountIn]
     })
@@ -24,7 +24,7 @@ export function useAmountsOut(
   if (wrapperAmountIn) {
     contractCalls.push({
       address: address,
-      abi: FIXED_RATIO_ABI,
+      abi: WRAPPER_TOKEN_ABI,
       functionName: 'getUnwrapAmountOut',
       args: [wrapperAmountIn]
     })

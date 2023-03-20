@@ -22,11 +22,8 @@ export type TokenData = {
   balance: BigNumber,
 }
 
-export type WrapperType = "fixed" | "shares"
-
 export type WrapperInfo = {
   wrapperId?: number,
-  type: WrapperType,
   
   wrapper: TokenData,
   token: TokenData,
@@ -49,8 +46,6 @@ export type WrapUnwrapFormParams = {
 }
 
 export type WrapperDeployParams = {
-  type: WrapperType,
-
   tokenAddress: `0x${string}`,
   name: string,
   symbol: string,

@@ -7,7 +7,7 @@ import WrapOperationSelector from "../../components/WrapOperationSelector"
 import WrapUnwrapForm from "../../components/form/WrapUnwrapForm"
 import { useWaitForTransaction } from 'wagmi'
 import { prepareWriteContract, writeContract, SendTransactionResult } from '@wagmi/core'
-import FIXED_RATIO_ABI from "../../abi/FixedRatio.json"
+import WRAPPER_TOKEN_ABI from "../../abi/WrapperToken.json"
 import { WrapUnwrapFormParams, WrapperInfo, WrapOperationType } from "../../types"
 import { useWrapperInfo } from "../../hooks"
 import { EXPLORER_TX_BASE_LINK } from "../../constants"
@@ -41,7 +41,7 @@ export default function Wrapper() {
 
     return prepareWriteContract({
       address: address as `0x${string}`,
-      abi: FIXED_RATIO_ABI,
+      abi: WRAPPER_TOKEN_ABI,
       functionName: data.functionName,
       args: [
         data.amount,

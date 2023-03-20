@@ -50,7 +50,7 @@ export default function Topbar() {
   return (
     <Navbar expand="md" >
       <Container>
-        <Navbar.Brand href="/">
+        <Navbar.Brand href="/" >
           <h4 className="font-weight-bold">Wrapper Factory</h4>
         </Navbar.Brand>
 

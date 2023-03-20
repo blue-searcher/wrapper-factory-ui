@@ -8,10 +8,10 @@ import { MaxUint256 } from "@ethersproject/constants"
 import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
 import { BigNumber } from "ethers"
-import FIXED_RATIO_ABI from "../../abi/FixedRatio.json"
+import WRAPPER_TOKEN_ABI from "../../abi/WrapperToken.json"
 import { UNIT } from "../../constants"
 import { useContractRead, usePrepareContractWrite, useWaitForTransaction, useContractWrite, useAccount } from 'wagmi'
-import { useAmountsOut, useRatio } from "../../hooks"
+import { useAmountsOut } from "../../hooks"
 import { WrapUnwrapFormParams, WrapperInfo, AccountResult, AmountsOut, WrapOperationType } from "../../types"
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { EXPLORER_ADDRESS_BASE_LINK } from "../../constants"
@@ -97,7 +97,7 @@ export default function WrapUnwrapForm({
 
   const { config } = usePrepareContractWrite({
     address: info?.token?.address,
-    abi: FIXED_RATIO_ABI,
+    abi: WRAPPER_TOKEN_ABI,
     functionName: 'approve',
     args: [
       info?.wrapper?.address,

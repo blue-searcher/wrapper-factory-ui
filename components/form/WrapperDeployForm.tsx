@@ -9,13 +9,13 @@ import { AddressZero } from "@ethersproject/constants"
 import { toast } from 'react-toastify'
 import Spinner from "react-bootstrap/Spinner"
 import ConnectWallet from "../ConnectWallet"
-import { WrapperDeployParams, AccountResult, WrapperType } from "../../types"
+import { WrapperDeployParams, AccountResult } from "../../types"
 import { BigNumber } from "ethers"
 import BigDecimalInput from "./BigDecimalInput"
 import { parseUnits } from "@ethersproject/units"
+import { TbArrowsMoveHorizontal } from 'react-icons/tb'
 
 interface Props {
-  type: WrapperType,
   onSubmit: (data: WrapperDeployParams) => Promise<void>,
 }
 
@@ -46,7 +46,7 @@ function InnerForm() {
 
   return (
    <Form>
-    <div className="form-group py-2 row">
+    <div className="form-group pb-2 row">
       <div className="col-12">
         <Field
           type="text"
@@ -88,38 +88,36 @@ function InnerForm() {
       </div>
     </div>
 
-    {values.type === "fixed" && (
-      <div className="form-group py-4">
-        <label>Ratio</label>
-        <div className="d-flex justify-content-between text-center">
-          <div>
-            <BigDecimalInput
-              name="tokenAmount"
-              decimals={token?.decimals || 0}
-              onChange={(v: BigNumber) => setFieldValue("tokenAmount", v)}
-              defaultValue={"1"}
-            />
-            <br/>
-            <span className="font-weight-bold">{token?.symbol || "TOKEN"}</span>
-          </div>
+    <div className="form-group py-4">
+      <label>Ratio</label>
+      <div className="d-flex justify-content-between text-center">
+        <div>
+          <BigDecimalInput
+            name="tokenAmount"
+            decimals={token?.decimals || 0}
+            onChange={(v: BigNumber) => setFieldValue("tokenAmount", v)}
+            defaultValue={"1"}
+          />
+          <br/>
+          <span className="font-weight-bold">{token?.symbol || "TOKEN"}</span>
+        </div>
 
-          <div className="w-50">
-            <h2 className="text-primary">{"↔️"}</h2>
-          </div>
+        <div className="w-50">
+          <h2 className="text-primary"><TbArrowsMoveHorizontal /></h2>
+        </div>
 
-          <div>
-            <BigDecimalInput
-              name="wrapperAmount"
-              decimals={values.decimals}
-              onChange={(v: BigNumber) => setFieldValue("wrapperAmount", v)}
-              defaultValue={"1"}
-            />
-            <br/>
-            <span className="font-weight-bold">{values?.symbol || "WRAPPER"}</span>
-          </div>
+        <div>
+          <BigDecimalInput
+            name="wrapperAmount"
+            decimals={values.decimals}
+            onChange={(v: BigNumber) => setFieldValue("wrapperAmount", v)}
+            defaultValue={"1"}
+          />
+          <br/>
+          <span className="font-weight-bold">{values?.symbol || "WRAPPER"}</span>
         </div>
       </div>
-    )}
+    </div>
 
     <div className="mt-4">
       {(accountResult?.isConnecting || !accountResult?.isConnected || accountResult?.isReconnecting) ? (
@@ -156,13 +154,10 @@ function InnerForm() {
 
 
 export default function WrapperDeployForm({
-  type,
   onSubmit
 }: Props) {
 
   const initialValues: WrapperDeployParams = {
-    type: type,
-
     tokenAddress: "0x",
     name: "",
     symbol: "",

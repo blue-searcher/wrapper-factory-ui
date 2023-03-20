@@ -1,11 +1,6 @@
 [
   {
     "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [],
     "name": "RatioMustBePositive",
     "type": "error"
   },
@@ -23,12 +18,6 @@
         "internalType": "address",
         "name": "token",
         "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "wrapperType",
-        "type": "uint256"
       },
       {
         "indexed": false,
@@ -55,7 +44,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_ratio",
+        "name": "_initialRatio",
         "type": "uint256"
       },
       {
@@ -74,44 +63,10 @@
         "type": "uint8"
       }
     ],
-    "name": "deployFixedRatio",
+    "name": "deploy",
     "outputs": [
       {
-        "internalType": "contract FixedRatio",
-        "name": "wrapper",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_decimals",
-        "type": "uint8"
-      }
-    ],
-    "name": "deploySharesBased",
-    "outputs": [
-      {
-        "internalType": "contract SharesBased",
+        "internalType": "contract WrapperToken",
         "name": "wrapper",
         "type": "address"
       }

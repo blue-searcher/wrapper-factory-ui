@@ -2,7 +2,6 @@ import ContentWrapper from "../../components/layout/ContentWrapper"
 import CenteredContent from "../../components/layout/CenteredContent"
 import WrappersList from "../../components/WrappersList"
 
-
 export default function Wrappers() {
   return (
     <ContentWrapper

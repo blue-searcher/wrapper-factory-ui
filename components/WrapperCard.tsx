@@ -1,9 +1,9 @@
 import { FACTORY_ADDRESS } from "../constants"
 import WRAPPER_FACTORY_ABI from "../abi/WrapperFactory.json"
-import FIXED_RATIO_ABI from "../abi/FixedRatio.json"
+import WRAPPER_TOKEN_ABI from "../abi/WrapperToken.json"
 import { useContractRead, useContractReads, useToken, erc20ABI } from 'wagmi'
 import { BigNumber } from "ethers"
-import { WRAPPER_TYPES, WrapperTypeInfo, UNIT } from "../constants"
+import { UNIT } from "../constants"
 import Badge from "react-bootstrap/Badge"
 import Card from "react-bootstrap/Card"
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import { useWrapperInfo, useWrapperById, useAmountsOut } from "../hooks"
 import { WrapperInfo, AmountsOut, WrapperListFilter } from "../types"
 import { BsFillArrowRightCircleFill } from "react-icons/bs"
 import { parseUnits, formatUnits } from "@ethersproject/units"
+import { TbArrowsMoveHorizontal } from 'react-icons/tb'
 
 interface Props {
   wrapperId: number,
@@ -38,8 +39,6 @@ export default function WrapperCard({
     parseUnits("1", info?.wrapper?.decimals || 0)
   )
 
-  const wrapper: WrapperTypeInfo = WRAPPER_TYPES.find(el => el.id === info?.type);
-
   return (
     <>
       {info && canBeRendered(info, filter) && (
@@ -49,20 +48,21 @@ export default function WrapperCard({
             borderTop: "1px solid #dee2e6",
             borderRight: "1px solid #dee2e6",
             borderBottom: "1px solid #dee2e6",
-            borderLeft: "5px solid var(--bs-" + (wrapper?.color || "primary") + ")",
+            borderLeft: "5px solid var(--bs-warning)",
             position: "relative",
             borderRadius: "0 5px 5px 0",
           }}
         >
           <Link 
             href={"/wrappers/" + info?.wrapper?.address}
+            style={{ textDecoration: "none" }}
           > 
             <Card.Header className="m-0 p-2 d-flex justify-content-between" style={{cursor:"pointer" }}>
               <div>
                 <h5 className="d-inline-block">
-                  {wrapper?.icon + " " + info?.wrapper?.symbol}
+                  {info?.wrapper?.symbol}
                 </h5>
-                {" "}
+                {" - "}
                 <span className="text-muted">{info?.wrapper?.name}</span>
               </div>
               <div className="d-flex justify-content-center">
@@ -70,9 +70,6 @@ export default function WrapperCard({
                   {info?.wrapper?.balance?.gt(0) && (
                     <span>{"⭐️ "}</span>
                   )}
-                </div>
-                <div className="text-center">
-                  <h5 className="d-inline-block"><Badge pill text={"dark"} bg={wrapper?.color || "primary"}>{wrapper?.name || ""}</Badge></h5>
                 </div>
               </div>
             </Card.Header>
@@ -103,7 +100,7 @@ export default function WrapperCard({
                       </div>
 
                       <div className="px-4">
-                        <h2 className="d-inline-block text-primary">{" ↔️ "}</h2>
+                        <h2 className="d-inline-block text-primary"><TbArrowsMoveHorizontal /></h2>
                       </div>
 
                       <div>

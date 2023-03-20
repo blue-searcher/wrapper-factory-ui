@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react"
 import ContentWrapper from "../../components/layout/ContentWrapper"
 import CenteredContent from "../../components/layout/CenteredContent"
-import WrapperTypeSelector from "../../components/WrapperTypeSelector"
-import WrapperDescription from "../../components/WrapperDescription"
 import WrapperDeployForm from "../../components/form/WrapperDeployForm"
 import Card from "react-bootstrap/Card"
 import { FACTORY_ADDRESS, EXPLORER_TX_BASE_LINK, UNIT } from "../../constants"
-import { WrapperDeployParams, WrapperType } from "../../types"
+import { WrapperDeployParams } from "../../types"
 import WRAPPER_FACTORY_ABI from "../../abi/WrapperFactory.json"
 import { prepareWriteContract, writeContract, SendTransactionResult } from '@wagmi/core'
 import { useWaitForTransaction } from 'wagmi'
@@ -17,37 +15,7 @@ import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
 import Link from 'next/link'
 
-const getFunctionName = (type: WrapperType): string => {
-  if (type === "fixed") {
-    return "deployFixedRatio"
-  }
-  if (type === "shares") {
-    return "deploySharesBased"
-  }
-}
-
-const getFunctionArgs = (data: WrapperDeployParams): Array<any> => {
-  if (data.type === "fixed") {
-    return [
-      data.tokenAddress,
-      data.wrapperAmount.mul(UNIT).div(data.tokenAmount),
-      data.name,
-      data.symbol,
-      BigNumber.from(data.decimals)
-    ]
-  }
-  if (data.type === "shares") {
-    return [
-      data.tokenAddress,
-      data.name,
-      data.symbol,
-      BigNumber.from(data.decimals)
-    ]
-  }
-}
-
 export default function Factory() {
-  const [wrapperType, setWrapperType] = useState<WrapperType>("fixed")
   const [deployTxHash, setDeployTxHash] = useState<`0x${string}`>("0x0")
   const [createdWrapperAddress, setCreatedWrapperAddress] = useState<`0x${string}`>("0x0")
 
@@ -71,8 +39,6 @@ export default function Factory() {
     }
   }, [data])
 
-  
-
   const onSubmit = async (data: WrapperDeployParams): Promise<void> => {
     setDeployTxHash("0x0")
     setCreatedWrapperAddress("0x0")
@@ -80,8 +46,14 @@ export default function Factory() {
     return prepareWriteContract({
       address: FACTORY_ADDRESS,
       abi: WRAPPER_FACTORY_ABI,
-      functionName: getFunctionName(data.type),
-      args: getFunctionArgs(data),
+      functionName: "deploy",
+      args: [
+        data.tokenAddress,
+        data.wrapperAmount.mul(UNIT).div(data.tokenAmount),
+        data.name,
+        data.symbol,
+        BigNumber.from(data.decimals)
+      ]
     })
     .then((config) => {
       return writeContract(config)
@@ -105,21 +77,16 @@ export default function Factory() {
     > 
       <CenteredContent size="sm">
         <Card className="p-0 m-0">
-          <div className="w-100" >
-            <WrapperTypeSelector 
-              value={wrapperType}
-              onChange={(type: WrapperType) => setWrapperType(type)} 
-            />
-            <WrapperDescription 
-              type={wrapperType} 
-            />
+          <div className="w-100 text-justify p-4 pb-2">
+            📙 A wrapper token is an ERC20 that can be exchanged at a fixed ratio to the supplied token.
           </div>
+
+          <hr/>
 
           <Card.Body className="px-4">
             <div>
               <WrapperDeployForm 
                 onSubmit={onSubmit} 
-                type={wrapperType}
               />
             </div>
 
