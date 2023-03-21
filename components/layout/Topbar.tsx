@@ -51,7 +51,7 @@ export default function Topbar() {
     <Navbar expand="md" >
       <Container>
         <Navbar.Brand href="/" >
-          <h4 className="font-weight-bold">Wrapper Factory</h4>
+          <h6 className="font-weight-bold">Wrapper Factory</h6>
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
