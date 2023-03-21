@@ -46,7 +46,7 @@ export type WrapUnwrapFormParams = {
 }
 
 export type WrapperDeployParams = {
-  tokenAddress: `0x${string}`,
+  tokenAddress: string,
   name: string,
   symbol: string,
   decimals: number,

@@ -26,7 +26,7 @@ function InnerForm() {
   const { values, setFieldValue, isValid, isSubmitting } = useFormikContext<WrapperDeployParams>();
 
   const tokenResult = useToken({ 
-    address: values.tokenAddress,
+    address: values.tokenAddress as `0x${string}`,
     onError(error: any) {
       toast.error("Error fetching token information")
     },
@@ -158,7 +158,7 @@ export default function WrapperDeployForm({
 }: Props) {
 
   const initialValues: WrapperDeployParams = {
-    tokenAddress: "0x",
+    tokenAddress: "",
     name: "",
     symbol: "",
     decimals: 18,
