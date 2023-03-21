@@ -30,6 +30,11 @@ interface ReportProps {
   amountIn: BigNumber,
 }
 
+interface BalanceProps {
+  info: WrapperInfo,
+  functionName: WrapOperationType,
+}
+
 function WrapReport({
   info, 
   amountIn
@@ -43,7 +48,7 @@ function WrapReport({
         <div>
           <span>{formatUnits(amountsOut?.wrap || "0", info?.wrapper?.decimals || 0)}</span>
           {" "}
-          <span>{info?.wrapper.symbol}</span>
+          <span>{info?.wrapper?.symbol}</span>
         </div>
       </div>
     </div>
@@ -63,9 +68,36 @@ function UnwrapReport({
         <div>
           <span>{formatUnits(amountsOut?.unwrap || "0", info?.token?.decimals || 0)}</span>
           {" "}
-          <span>{info?.token.symbol}</span>
+          <span>{info?.token?.symbol}</span>
         </div>
       </div>
+    </div>
+  )
+}
+
+function Balance({
+  info, 
+  functionName
+}: BalanceProps) {
+  return (
+    <div>
+      {functionName === "wrap" ? (
+        <div>
+          <span>Balance:</span>
+          {" "}
+          <span>{formatUnits(info?.token?.balance || "0", info?.token?.decimals || 0)}</span>
+          {" "}
+          <span>{info?.token?.symbol}</span>
+        </div>
+      ) : (
+        <div>
+          <span>Balance:</span>
+          {" "}
+          <span>{formatUnits(info?.wrapper?.balance || "0", info?.wrapper?.decimals || 0)}</span>
+          {" "}
+          <span>{info?.wrapper?.symbol}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -156,17 +188,19 @@ export default function WrapUnwrapForm({
 
             <div className="form-group py-2 row">
               <div className="col-12">
-                <div className="d-flex">
-                  <div className="w-100">
-                    <BigDecimalInput
-                      name="amount"
-                      decimals={values.functionName === "wrap" ? info?.token?.decimals : info?.wrapper?.decimals}
-                      onChange={(v: BigNumber) => setFieldValue("amount", v)}
-                      defaultValue={"0"}
-                      max={values.functionName === "wrap" ? info?.token?.balance : info?.wrapper?.balance}
-                    />
-                  </div>
+                <div className="w-100 text-muted" style={{ textAlign: "right" }}>
+                  <Balance 
+                    info={info}
+                    functionName={values.functionName}
+                  />
                 </div>
+                <BigDecimalInput
+                  name="amount"
+                  decimals={values.functionName === "wrap" ? info?.token?.decimals : info?.wrapper?.decimals}
+                  onChange={(v: BigNumber) => setFieldValue("amount", v)}
+                  defaultValue={"0"}
+                  max={values.functionName === "wrap" ? info?.token?.balance : info?.wrapper?.balance}
+                />
               </div>
             </div>
 
